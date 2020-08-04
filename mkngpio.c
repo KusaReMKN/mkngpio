@@ -3,19 +3,21 @@
 int ExportGPIO(int nPortNum)
 {
 	char szPath[] = "/sys/class/gpio/export";
-	FILE *fp;
+	char value[16] = {0};
+	int fd;
 
 	if (nPortNum < 0 || 27 < nPortNum)
 	{
 		return -1;
 	}
 
-	if ((fp = fopen(szPath, "w")) == NULL)
+	if ((fd = open(szPath, O_WRONLY)) == -1)
 	{
 		return -2;
 	}
-	fprintf(fp, "%d", nPortNum);
-	fclose(fp);
+	sprintf(value, "%d", nPortNum);
+	write(fd, value, strlen(value));
+	close(fd);
 
 	return 0;
 }
@@ -23,19 +25,21 @@ int ExportGPIO(int nPortNum)
 int UnexportGPIO(int nPortNum)
 {
 	char szPath[] = "/sys/class/gpio/unexport";
-	FILE *fp;
+	char value[16] = {0};
+	int fd;
 
 	if (nPortNum < 0 || 27 < nPortNum)
 	{
 		return -1;
 	}
 
-	if ((fp = fopen(szPath, "w")) == NULL)
+	if ((fd = open(szPath, O_WRONLY)) == -1)
 	{
 		return -2;
 	}
-	fprintf(fp, "%d", nPortNum);
-	fclose(fp);
+	sprintf(value, "%d", nPortNum);
+	write(fd, value, strlen(value));
+	close(fd);
 
 	return 0;
 }
@@ -43,7 +47,8 @@ int UnexportGPIO(int nPortNum)
 int SetGPIODirection(int nPortNum, int nInOut)
 {
 	char szPath[1024] = {0};
-	FILE *fp;
+	char value[16] = {0};
+	int fd;
 
 	if (nPortNum < 0 || 27 < nPortNum)
 	{
@@ -57,18 +62,20 @@ int SetGPIODirection(int nPortNum, int nInOut)
 
 	sprintf(szPath, "/sys/class/gpio/gpio%d/direction", nPortNum);
 
-	if ((fp = fopen(szPath, "w")) == NULL)
+	if ((fd = open(szPath, O_WRONLY)) == -1)
 	{
 		return -4;
 	}
-	fprintf(fp, "%s", nInOut ? "out" : "in");
-	fclose(fp);
+	sprintf(value, "%s", nInOut ? "out" : "in");
+	write(fd, value, strlen(value));
+	close(fd);
 }
 
 int WriteGPIO(int nPortNum, int nValue)
 {
 	char szPath[1024] = {0};
-	FILE *fp;
+	char value[16] = {0};
+	int fd;
 
 	if (nPortNum < 0 || 27 < nPortNum)
 	{
@@ -77,19 +84,20 @@ int WriteGPIO(int nPortNum, int nValue)
 
 	sprintf(szPath, "/sys/class/gpio/gpio%d/value", nPortNum);
 
-	if ((fp = fopen(szPath, "w")) == NULL)
+	if ((fd = open(szPath, O_WRONLY)) == -1)
 	{
 		return -5;
 	}
-	fprintf(fp, "%d", !!nValue);
-	fclose(fp);
+	sprintf(value, "%d", !!nValue);
+	write(fd, value, strlen(value));
+	close(fd);
 }
 
 int ReadGPIO(int nPortNum)
 {
 	char szPath[1024] = {0};
-	FILE *fp;
-	int c;
+	int fd;
+	char value[16] = {0};
 
 	if (nPortNum < 0 || 27 < nPortNum)
 	{
@@ -98,12 +106,12 @@ int ReadGPIO(int nPortNum)
 
 	sprintf(szPath, "/sys/class/gpio/gpio%d/value", nPortNum);
 
-	if ((fp = fopen(szPath, "r")) == NULL)
+	if ((fd = open(szPath, O_RDONLY)) == -1)
 	{
 		return -5;
 	}
-	c = getc(fp);
-	fclose(fp);
+	read(fd, value, 1);
+	close(fd);
 
-	return !(c == '0');
+	return !(value[0] == '0');
 }
