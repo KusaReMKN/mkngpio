@@ -69,6 +69,8 @@ int SetGPIODirection(int nPortNum, int nInOut)
 	sprintf(value, "%s", nInOut ? "out" : "in");
 	write(fd, value, strlen(value));
 	close(fd);
+
+	return 0;
 }
 
 int WriteGPIO(int nPortNum, int nValue)
@@ -91,6 +93,8 @@ int WriteGPIO(int nPortNum, int nValue)
 	sprintf(value, "%d", !!nValue);
 	write(fd, value, strlen(value));
 	close(fd);
+
+	return 0;
 }
 
 int ReadGPIO(int nPortNum)
